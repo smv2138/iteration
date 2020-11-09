@@ -5,14 +5,14 @@ Writing Functions
 library(tidyverse)
 ```
 
-    ## -- Attaching packages ---------------------------------------------------------------------------------------------------------------------------------- tidyverse 1.3.0 --
+    ## -- Attaching packages --------------------------------------------------------------------------------------------------------------------------------- tidyverse 1.3.0 --
 
     ## v ggplot2 3.3.2     v purrr   0.3.4
     ## v tibble  3.0.3     v dplyr   1.0.2
     ## v tidyr   1.1.2     v stringr 1.4.0
     ## v readr   1.3.1     v forcats 0.5.0
 
-    ## -- Conflicts ------------------------------------------------------------------------------------------------------------------------------------- tidyverse_conflicts() --
+    ## -- Conflicts ------------------------------------------------------------------------------------------------------------------------------------ tidyverse_conflicts() --
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
@@ -64,12 +64,11 @@ x_vec = rnorm(30, mean = 5, sd = 3)
 (x_vec - mean(x_vec)) / sd(x_vec)
 ```
 
-    ##  [1]  1.434965487  0.176047805  1.490055295 -1.150667921  0.935146890
-    ##  [6] -0.372589974 -0.700841066 -0.755487457  0.096528824  1.374825408
-    ## [11]  2.133052930  0.847716211 -0.863177443  0.001278023 -0.276292843
-    ## [16]  0.831719370 -1.943496278 -0.041040095  0.356518448 -1.621585286
-    ## [21]  0.313095627 -0.409475816 -0.725949093 -0.415527981  0.243669569
-    ## [26]  0.100231430 -2.000507920  0.647753947  0.682744364 -0.388710452
+    ##  [1]  0.88303021  0.02828309 -0.23916186  0.60351718  1.21565946  1.37700970
+    ##  [7] -0.01944563 -0.99085518 -1.42187528 -0.89502501  0.85282057  0.31734649
+    ## [13] -1.17723600  0.14720036 -1.56079256 -0.26052490 -0.85700452  0.24187739
+    ## [19]  0.59105421  0.58627566 -2.16000770  1.45547580  1.26059580 -0.47304742
+    ## [25]  1.12320594 -1.13903527 -0.69271508  0.37431329  1.48082970 -0.65176844
 
 I want a function that will compute z-scores We named input “x” and
 return “z”
@@ -88,12 +87,11 @@ z_scores  = function(x) {
 z_scores(x_vec)
 ```
 
-    ##  [1]  1.434965487  0.176047805  1.490055295 -1.150667921  0.935146890
-    ##  [6] -0.372589974 -0.700841066 -0.755487457  0.096528824  1.374825408
-    ## [11]  2.133052930  0.847716211 -0.863177443  0.001278023 -0.276292843
-    ## [16]  0.831719370 -1.943496278 -0.041040095  0.356518448 -1.621585286
-    ## [21]  0.313095627 -0.409475816 -0.725949093 -0.415527981  0.243669569
-    ## [26]  0.100231430 -2.000507920  0.647753947  0.682744364 -0.388710452
+    ##  [1]  0.88303021  0.02828309 -0.23916186  0.60351718  1.21565946  1.37700970
+    ##  [7] -0.01944563 -0.99085518 -1.42187528 -0.89502501  0.85282057  0.31734649
+    ## [13] -1.17723600  0.14720036 -1.56079256 -0.26052490 -0.85700452  0.24187739
+    ## [19]  0.59105421  0.58627566 -2.16000770  1.45547580  1.26059580 -0.47304742
+    ## [25]  1.12320594 -1.13903527 -0.69271508  0.37431329  1.48082970 -0.65176844
 
 Testing function on other things
 
@@ -216,9 +214,9 @@ mean_sd(x_vec)
 ```
 
     ## # A tibble: 1 x 2
-    ##       mean    sd
-    ##      <dbl> <dbl>
-    ## 1 -0.00293 0.963
+    ##      mean    sd
+    ##     <dbl> <dbl>
+    ## 1 -0.0335  1.04
 
 ## Multiple Inputs
 
@@ -244,7 +242,7 @@ sim_data %>%
     ## # A tibble: 1 x 2
     ##    mean    sd
     ##   <dbl> <dbl>
-    ## 1  3.89  2.94
+    ## 1  4.09  2.86
 
 trying to create a function input is the 3 parameters in the tibble
 above
@@ -272,7 +270,7 @@ sim_mean_sd(100, 6, 3)
     ## # A tibble: 1 x 2
     ##    mean    sd
     ##   <dbl> <dbl>
-    ## 1  6.64  2.92
+    ## 1  5.41  3.29
 
 ``` r
 # also can do
@@ -282,7 +280,7 @@ sim_mean_sd(samp_size  = 100, mu = 6, sigma = 3)
     ## # A tibble: 1 x 2
     ##    mean    sd
     ##   <dbl> <dbl>
-    ## 1  5.65  2.67
+    ## 1  5.64  2.94
 
 ## Reviewing Napoleon Dynamite
 
@@ -354,28 +352,25 @@ Let’s turn the code into a function… only thing that changes is the page
 number
 
 ``` r
-url = "https://www.amazon.com/product-reviews/B00005JNBQ/ref=cm_cr_arp_d_viewopt_rvwer?ie=UTF8&reviewerType=avp_only_reviews&sortBy=recent&pageNumber=2"
-
 read_page_reviews = function(url) {
-  dynamite_html = read_html(url)
 
 
   html = read_html(url)
 
   review_titles = 
-    dynamite_html %>%
+    html %>%
     html_nodes(".a-text-bold span") %>%
     html_text()
 
   review_stars = 
-    dynamite_html %>%
+    html %>%
     html_nodes("#cm_cr-review_list .review-rating") %>%
     html_text() %>%
     str_extract("^\\d") %>%
     as.numeric()
 
   review_text = 
-    dynamite_html %>%
+    html %>%
     html_nodes(".review-text-content span") %>%
     html_text() %>% 
     str_replace_all("\n", "") %>% 
@@ -436,3 +431,20 @@ all_reiews =
     read_page_reviews(dynamite_urls[5])
 )
 ```
+
+## Mean scoping example
+
+``` r
+f = function(x) {
+  
+  z= x + y
+  z
+}
+
+x = 1
+y = 2
+
+f(x = y)
+```
+
+    ## [1] 4

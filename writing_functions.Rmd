@@ -268,28 +268,26 @@ reviews_page2 = tibble(
 Let's turn the code into a function... only thing that changes is the page number
 
 ```{r}
-url = "https://www.amazon.com/product-reviews/B00005JNBQ/ref=cm_cr_arp_d_viewopt_rvwer?ie=UTF8&reviewerType=avp_only_reviews&sortBy=recent&pageNumber=2"
 
 read_page_reviews = function(url) {
-  dynamite_html = read_html(url)
 
 
   html = read_html(url)
 
   review_titles = 
-    dynamite_html %>%
+    html %>%
     html_nodes(".a-text-bold span") %>%
     html_text()
 
   review_stars = 
-    dynamite_html %>%
+    html %>%
     html_nodes("#cm_cr-review_list .review-rating") %>%
     html_text() %>%
     str_extract("^\\d") %>%
     as.numeric()
 
   review_text = 
-    dynamite_html %>%
+    html %>%
     html_nodes(".review-text-content span") %>%
     html_text() %>% 
     str_replace_all("\n", "") %>% 
@@ -335,5 +333,22 @@ all_reiews =
     read_page_reviews(dynamite_urls[5])
 )
 
+```
+
+
+
+## Mean scoping example
+
+```{r}
+f = function(x) {
+  
+  z= x + y
+  z
+}
+
+x = 1
+y = 2
+
+f(x = y)
 ```
 
