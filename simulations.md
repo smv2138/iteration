@@ -1,18 +1,18 @@
-Iterations and list columns
+Simulations
 ================
 
 ``` r
 library(tidyverse)
 ```
 
-    ## -- Attaching packages ---------------------------------------------------------------------------------------------------------------------------------- tidyverse 1.3.0 --
+    ## -- Attaching packages --------------------------------------------------------------------------------------------------------------------------------- tidyverse 1.3.0 --
 
     ## v ggplot2 3.3.2     v purrr   0.3.4
     ## v tibble  3.0.3     v dplyr   1.0.2
     ## v tidyr   1.1.2     v stringr 1.4.0
     ## v readr   1.3.1     v forcats 0.5.0
 
-    ## -- Conflicts ------------------------------------------------------------------------------------------------------------------------------------- tidyverse_conflicts() --
+    ## -- Conflicts ------------------------------------------------------------------------------------------------------------------------------------ tidyverse_conflicts() --
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
@@ -57,10 +57,11 @@ scale_fill_discrete = scale_fill_viridis_d
 A function
 
 ``` r
-sim_mean_sd = function(n, mu = 3, sigma = 4) {
+sim_mean_sd = function(samp_size, mu = 3, sigma = 4) {
   
-  sim_data = tibble(
-    x = rnorm(n, mean = mu, sd = sigma),
+  sim_data = 
+    tibble(
+    x = rnorm(n = samp_size, mean = mu, sd = sigma)
   )
   
   sim_data %>% 
@@ -80,7 +81,7 @@ sim_mean_sd(30)
     ## # A tibble: 1 x 2
     ##    mean    sd
     ##   <dbl> <dbl>
-    ## 1  2.87  3.93
+    ## 1  3.11  3.58
 
 ## Let’s simulate a lot
 
@@ -91,7 +92,7 @@ output = vector("list", length = 100)
 
 for (i in 1:100) {
   
-  output[[i]] = sim_mean_sd(n = 30)
+  output[[i]] = sim_mean_sd(samp_size = 30)
   
 }
 
@@ -101,16 +102,16 @@ bind_rows(output)
     ## # A tibble: 100 x 2
     ##     mean    sd
     ##    <dbl> <dbl>
-    ##  1  2.95  4.41
-    ##  2  2.78  4.73
-    ##  3  2.12  3.62
-    ##  4  3.41  3.04
-    ##  5  3.45  4.13
-    ##  6  1.93  4.45
-    ##  7  3.13  3.67
-    ##  8  2.81  3.39
-    ##  9  2.66  4.67
-    ## 10  3.91  3.53
+    ##  1  2.11  5.38
+    ##  2  1.84  4.82
+    ##  3  3.99  3.83
+    ##  4  2.99  4.12
+    ##  5  3.55  4.55
+    ##  6  3.29  4.15
+    ##  7  2.65  3.43
+    ##  8  3.57  3.89
+    ##  9  4.60  3.55
+    ## 10  3.16  4.46
     ## # ... with 90 more rows
 
 Let’s use a loop function
@@ -119,7 +120,7 @@ rerun some number of times somthing
 
 ``` r
 sim_results = 
-rerun(100, sim_mean_sd(n = 30)) %>% 
+rerun(100, sim_mean_sd(samp_size = 30)) %>% 
   bind_rows()
 ```
 
@@ -143,7 +144,7 @@ sim_results %>%
     ## # A tibble: 1 x 2
     ##   avg_samp_mean sd_samp_mean
     ##           <dbl>        <dbl>
-    ## 1          2.98        0.706
+    ## 1          3.05        0.726
 
 ``` r
 sim_results %>% 
@@ -151,3 +152,76 @@ sim_results %>%
 ```
 
 <img src="simulations_files/figure-gfm/unnamed-chunk-6-2.png" width="90%" />
+
+## Let’s try other sample sizes
+
+``` r
+n_list = 
+  list(
+    "n = 30" = 30,
+    "n = 60" = 60,
+    "n = 120" = 120,
+    "n = 240" = 240
+  )
+
+
+output = vector("list", length = 4)
+
+output[[1]] = rerun(100, sim_mean_sd(samp_size = n_list[[1]])) %>% bind_rows()
+
+output[[2]] = rerun(100, sim_mean_sd(samp_size = n_list[[2]])) %>% bind_rows()
+
+for (i in 1:4) {
+  
+  output[[i]] = 
+    rerun(100, sim_mean_sd(samp_size = n_list[[i]])) %>% 
+    bind_rows()
+}
+```
+
+``` r
+sim_results = 
+
+tibble(
+  sample_size = c(30, 60, 120, 240)
+) %>% 
+  mutate(
+    output_lists = map(.x = sample_size, ~ rerun(1000, sim_mean_sd(.x))),
+    estimate_df = map(output_lists, bind_rows)
+  ) %>% 
+  select(-output_lists) %>% 
+  unnest(estimate_df)
+```
+
+Do some dataframe things
+
+``` r
+sim_results %>% 
+  mutate(
+    sample_size = str_c("n = ", sample_size),
+    sample_size = fct_inorder(sample_size)
+  ) %>% 
+  ggplot(aes(x = sample_size, y = mean)) +
+  geom_violin()
+```
+
+<img src="simulations_files/figure-gfm/unnamed-chunk-9-1.png" width="90%" />
+
+``` r
+sim_results %>% 
+  group_by(sample_size) %>% 
+ summarize(
+    avg_samp_mean = mean(mean),
+    sd_samp_mean = sd(mean)
+  )
+```
+
+    ## `summarise()` ungrouping output (override with `.groups` argument)
+
+    ## # A tibble: 4 x 3
+    ##   sample_size avg_samp_mean sd_samp_mean
+    ##         <dbl>         <dbl>        <dbl>
+    ## 1          30          2.98        0.739
+    ## 2          60          2.99        0.522
+    ## 3         120          2.99        0.357
+    ## 4         240          3.00        0.260
