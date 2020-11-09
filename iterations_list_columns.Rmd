@@ -133,3 +133,58 @@ Binds the output together to a dataframe
 output = map_df(list_norm, mean_sd, .id = "input")
 ```
 
+
+## List columns!! 
+keep track of inputs and ouputs at the same time
+
+```{r}
+listcol_df = 
+  tibble(
+    name = c("a", "b", "c", "d"),
+    samp = list_norm
+  )
+```
+
+
+```{r}
+listcol_df %>% pull(name)
+listcol_df %>% pull(samp)
+
+listcol_df %>% 
+  filter(name == "a")
+```
+
+
+
+Let's try other operations
+
+```{r}
+# apply mean and sd function to the list
+mean_sd(listcol_df$samp[[1]])
+```
+
+Can I map?
+```{r}
+#samp is the list column
+map(listcol_df$samp, mean_sd)
+```
+
+
+can I add a list column (add output to the list)
+In 1 dataframe, we have both input and output information 
+```{r}
+listcol_df = 
+  listcol_df %>% 
+  mutate(
+    summary = map(samp, mean_sd),
+    medians = map_dbl(samp, median))
+```
+
+
+
+
+
+
+
+
+
