@@ -116,3 +116,83 @@ z_scores  = function(x) {
 }
 ```
 
+## Multiple outputs
+
+We want function to spit out mean and SD at the same time
+
+```{r}
+mean_sd  = function(x) {
+  
+  if (!is.numeric(x)) {
+    stop("Input must be numeric")
+  }
+  
+  if (length(x) < 3) {
+    stop("Input must have at least 3 observations")
+  }
+  
+  mean_x = mean(x)
+  sd_x = sd(x)
+  
+  tibble(
+    mean = mean_x,
+    sd = sd_x
+  )
+  
+}
+```
+
+Check that function works
+
+```{r}
+x_vec = rnorm(1000)
+
+mean_sd(x_vec)
+```
+
+## Multiple Inputs
+GIve me an input that spits out the certain output
+Create a simulated dataset
+
+I'd like to do the below with a function instead
+```{r}
+sim_data = 
+  tibble(
+    x = rnorm(100, mean = 4, sd = 3)
+  )
+
+
+sim_data %>% 
+  summarize(
+    mean  = mean(x),
+    sd = sd(x)
+  )
+```
+
+
+trying to create a function
+input is the 3 parameters in the tibble above
+```{r}
+sim_mean_sd = function(samp_size, mu, sigma) {
+  
+  sim_data = 
+  tibble(
+    x = rnorm(n = samp_size, mean = mu, sd = sigma)
+  )
+
+
+sim_data %>% 
+  summarize(
+    mean  = mean(x),
+    sd = sd(x)
+  )
+}
+
+
+sim_mean_sd(100, 6, 3)
+
+# also can do
+sim_mean_sd(samp_size  = 100, mu = 6, sigma = 3)
+
+```
+

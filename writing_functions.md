@@ -64,11 +64,11 @@ x_vec = rnorm(30, mean = 5, sd = 3)
 (x_vec - mean(x_vec)) / sd(x_vec)
 ```
 
-    ##  [1] -0.8324535 -0.5714376  0.8519792 -0.2374206  0.3912988  1.3174699
-    ##  [7] -2.3592318 -0.4835181  0.4442506 -0.1155117  0.5792563 -1.8614709
-    ## [13] -0.7313013  0.1443873 -1.1294085  2.2538969  1.0219649  1.0506768
-    ## [19]  0.3035235  0.5382738  0.1845623  1.1985581  0.6922977 -0.7515618
-    ## [25] -0.5962653  0.8205249 -1.0078049 -0.6806563 -0.9029383  0.4680594
+    ##  [1]  1.23683710  0.55423123  0.22883633 -0.32088842 -0.13736871  0.38512328
+    ##  [7]  1.30581679  2.63106343  0.08887966 -0.04321577 -1.44785500  0.35081716
+    ## [13] -0.86319544  0.13200029 -1.72853255  0.22350550  0.76778525 -2.14563045
+    ## [19]  0.34526472  0.09915951 -0.12392688  1.10910072 -1.92447782 -0.14235275
+    ## [25] -0.66058653  0.05074833  0.51308220 -0.95056960  0.53093057 -0.06458213
 
 I want a function that will compute z-scores We named input “x” and
 return “z”
@@ -87,11 +87,11 @@ z_scores  = function(x) {
 z_scores(x_vec)
 ```
 
-    ##  [1] -0.8324535 -0.5714376  0.8519792 -0.2374206  0.3912988  1.3174699
-    ##  [7] -2.3592318 -0.4835181  0.4442506 -0.1155117  0.5792563 -1.8614709
-    ## [13] -0.7313013  0.1443873 -1.1294085  2.2538969  1.0219649  1.0506768
-    ## [19]  0.3035235  0.5382738  0.1845623  1.1985581  0.6922977 -0.7515618
-    ## [25] -0.5962653  0.8205249 -1.0078049 -0.6806563 -0.9029383  0.4680594
+    ##  [1]  1.23683710  0.55423123  0.22883633 -0.32088842 -0.13736871  0.38512328
+    ##  [7]  1.30581679  2.63106343  0.08887966 -0.04321577 -1.44785500  0.35081716
+    ## [13] -0.86319544  0.13200029 -1.72853255  0.22350550  0.76778525 -2.14563045
+    ## [19]  0.34526472  0.09915951 -0.12392688  1.10910072 -1.92447782 -0.14235275
+    ## [25] -0.66058653  0.05074833  0.51308220 -0.95056960  0.53093057 -0.06458213
 
 Testing function on other things
 
@@ -178,3 +178,106 @@ z_scores  = function(x) {
   
 }
 ```
+
+## Multiple outputs
+
+We want function to spit out mean and SD at the same time
+
+``` r
+mean_sd  = function(x) {
+  
+  if (!is.numeric(x)) {
+    stop("Input must be numeric")
+  }
+  
+  if (length(x) < 3) {
+    stop("Input must have at least 3 observations")
+  }
+  
+  mean_x = mean(x)
+  sd_x = sd(x)
+  
+  tibble(
+    mean = mean_x,
+    sd = sd_x
+  )
+  
+}
+```
+
+Check that function works
+
+``` r
+x_vec = rnorm(1000)
+
+mean_sd(x_vec)
+```
+
+    ## # A tibble: 1 x 2
+    ##     mean    sd
+    ##    <dbl> <dbl>
+    ## 1 0.0529 0.981
+
+## Multiple Inputs
+
+GIve me an input that spits out the certain output Create a simulated
+dataset
+
+I’d like to do the below with a function instead
+
+``` r
+sim_data = 
+  tibble(
+    x = rnorm(100, mean = 4, sd = 3)
+  )
+
+
+sim_data %>% 
+  summarize(
+    mean  = mean(x),
+    sd = sd(x)
+  )
+```
+
+    ## # A tibble: 1 x 2
+    ##    mean    sd
+    ##   <dbl> <dbl>
+    ## 1  4.02  2.97
+
+trying to create a function input is the 3 parameters in the tibble
+above
+
+``` r
+sim_mean_sd = function(samp_size, mu, sigma) {
+  
+  sim_data = 
+  tibble(
+    x = rnorm(n = samp_size, mean = mu, sd = sigma)
+  )
+
+
+sim_data %>% 
+  summarize(
+    mean  = mean(x),
+    sd = sd(x)
+  )
+}
+
+
+sim_mean_sd(100, 6, 3)
+```
+
+    ## # A tibble: 1 x 2
+    ##    mean    sd
+    ##   <dbl> <dbl>
+    ## 1  5.67  2.87
+
+``` r
+# also can do
+sim_mean_sd(samp_size  = 100, mu = 6, sigma = 3)
+```
+
+    ## # A tibble: 1 x 2
+    ##    mean    sd
+    ##   <dbl> <dbl>
+    ## 1  6.32  2.64
