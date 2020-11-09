@@ -1,0 +1,118 @@
+---
+title: "Writing Functions"
+output: github_document
+---
+```{r}
+library(tidyverse)
+library(rvest)
+library(httr)
+
+knitr::opts_chunk$set(
+  fig.width = 6,
+  fig.asp = 0.6,
+  out.width = "90%"
+)
+
+theme_set(theme_minimal() + theme(legend.position = "bottom"))
+
+## all plots i make will have the viridis color palette
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+
+```
+
+## Do something simple
+
+```{r}
+# creating a vector  
+x_vec = rnorm(30, mean = 5, sd = 3)
+
+# creating z-score
+(x_vec - mean(x_vec)) / sd(x_vec)
+```
+
+I want a function that will compute z-scores 
+We named input "x" and return "z"
+
+```{r}
+z_scores  = function(x) {
+  
+  z = (x - mean(x)) / sd(x)
+  
+  return(z)
+  
+}
+
+## testing function out
+
+z_scores(x_vec)
+```
+
+
+Testing function on other things
+
+```{r error = TRUE}
+# can't take mean of character
+z_scores("my name is jeff")
+
+# dataset in r (can't take mean of a dataset)
+z_scores(mtcars)
+
+# this works because r converts these into numeric (1 and 0)
+z_scores(c(TRUE, TRUE, FALSE, TRUE))
+```
+
+Update the function so that when people try to use it on something weird, it doesn't work (conditional execution)
+if x is not numeric then stop with error statement 
+```{r}
+z_scores  = function(x) {
+  
+  if (!is.numeric(x)) {
+    stop("Input must be numeric")
+  }
+  
+  z = (x - mean(x)) / sd(x)
+  
+  return(z)
+  
+}
+
+```
+
+
+```{r error = TRUE}
+# can't take mean of character
+z_scores("my name is jeff")
+
+# Input must be numeric
+z_scores(mtcars)
+
+# Input must be numeric
+z_scores(c(TRUE, TRUE, FALSE, TRUE))
+```
+
+Keep updating 
+
+```{r}
+z_scores  = function(x) {
+  
+  if (!is.numeric(x)) {
+    stop("Input must be numeric")
+  }
+  
+  if (length(x) < 3) {
+    stop("Input must have at least 3 observations")
+  }
+  
+  z = (x - mean(x)) / sd(x)
+  
+  return(z)
+  
+}
+```
+
